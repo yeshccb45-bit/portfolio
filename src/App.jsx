@@ -1,327 +1,542 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import './App.css'
 
-// Image imports
-import profilePic from './assets/profilepic.jpg'
 import aiCert from './assets/Ai workshop.jpg'
 import internshipCert from './assets/internship.jpg'
 import iotCert from './assets/Npteliot.jpg'
 
+const navigationGroups = [
+  {
+    label: 'OVERVIEW',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', mark: '00' },
+    ],
+  },
+  {
+    label: 'PORTFOLIO',
+    items: [
+      { id: 'about', label: 'Profile / About me', mark: '01' },
+      { id: 'education', label: 'Education', mark: '02' },
+      { id: 'skills', label: 'Technical skills', mark: '03' },
+      { id: 'soft-skills', label: 'Soft skills', mark: '04' },
+      { id: 'projects', label: 'Projects', mark: '05' },
+      { id: 'experience', label: 'Experience / Internship', mark: '06' },
+      { id: 'certifications', label: 'Certificates', mark: '07' },
+      { id: 'languages', label: 'Languages', mark: '08' },
+      { id: 'contact', label: 'Contact info', mark: '09' },
+    ],
+  },
+]
+
+const pageDetails = {
+  dashboard: { title: 'Dashboard', description: 'A quick overview of my work, learning, and current focus.' },
+  projects: { title: 'Projects', description: 'Things I have designed, built, and learned from.' },
+  skills: { title: 'Technical skills', description: 'The tools and technologies I use to bring ideas to life.' },
+  'soft-skills': { title: 'Soft skills', description: 'How I collaborate, solve problems, and keep learning.' },
+  experience: { title: 'Experience / Internship', description: 'Where I have put my skills to work.' },
+  about: { title: 'Profile / About me', description: 'A little context about the person behind the projects.' },
+  education: { title: 'Education', description: 'My academic path so far.' },
+  certifications: { title: 'Certificates', description: 'Courses, workshops, and milestones beyond the classroom.' },
+  languages: { title: 'Languages', description: 'Languages I speak.' },
+  contact: { title: 'Contact info', description: 'Have a project or opportunity in mind? Let’s connect.' },
+}
+
+const projects = [
+  {
+    title: 'SkillMorph',
+    category: 'LEARNING PLATFORM',
+    description: 'A skill-building platform with guided learning pathways, roadmap tracking, and a modern user experience.',
+    tags: ['React', 'Node.js', 'MongoDB', 'Vite'],
+    featured: true,
+  },
+  {
+    title: 'CMR VibeWaves',
+    category: 'LIVE BROADCASTING',
+    description: 'A web-based live broadcasting portal designed for real-time streaming, registration, and content management.',
+    tags: ['HTML', 'CSS', 'JavaScript', 'PHP', 'MySQL'],
+  },
+  {
+    title: 'Bank Management System',
+    category: 'DATABASE APPLICATION',
+    description: 'A command-line banking application for account creation, transactions, and record management.',
+    tags: ['JavaScript', 'PHP', 'MySQL', 'CLI'],
+  },
+]
+
+const skillGroups = [
+  { title: 'Programming', skills: ['C', 'C++', 'Java', 'Python'], mark: '01' },
+  { title: 'Web technologies', skills: ['HTML', 'CSS', 'JavaScript', 'PHP'], mark: '02' },
+  { title: 'Frameworks', skills: ['React.js', 'Node.js', 'Express.js', 'Next.js'], mark: '03' },
+  { title: 'Database', skills: ['SQL', 'PostgreSQL', 'MongoDB', 'DBMS'], mark: '04' },
+  { title: 'Cloud & IoT', skills: ['AWS (Basic)', 'IoT Architecture', 'Sensors'], mark: '05' },
+  { title: 'Tools', skills: ['Git', 'GitHub', 'VS Code', 'Antigravity', 'Postman'], mark: '06' },
+]
+
+const softSkills = ['Time Management', 'Communication', 'Team Collaboration', 'Problem Solving', 'Adaptability']
+const languages = ['English', 'Hindi', 'Telugu', 'Tamil', 'Kannada']
+
+const certifications = [
+  {
+    image: aiCert,
+    title: 'AI Workshop Participation',
+    issuer: 'Organized by Be10x',
+    year: '2025',
+    description: 'Hands-on experience with artificial intelligence concepts, machine learning, neural networks, and collaborative project work.',
+  },
+  {
+    image: internshipCert,
+    title: 'Full Stack Developer Internship',
+    issuer: 'Eduphoenix Solutions Pvt Ltd',
+    year: '2025',
+    description: 'Professional internship focused on web applications using React, Node.js, and MongoDB, including contributions to client projects.',
+  },
+  {
+    image: iotCert,
+    title: 'NPTEL IoT Certification',
+    issuer: 'NPTEL (IIT)',
+    year: '2024',
+    description: 'Coursework in Internet of Things architecture, sensors, and cloud integration.',
+  },
+]
+
+const education = [
+  {
+    title: 'Master of Computer Applications (MCA)',
+    school: 'East Point College of Higher Education',
+    status: 'Currently pursuing',
+    current: true,
+  },
+  {
+    title: 'Bachelor of Computer Applications (BCA)',
+    school: 'CMR University, Bengaluru',
+    detail: 'Cloud Computing',
+    status: 'Completed',
+    result: '8.48 CGPA',
+  },
+  {
+    title: 'Pre-University College (PCMC)',
+    school: 'Indranagar Composite PU College, Bengaluru',
+    status: 'June 2021 - April 2023',
+  },
+  {
+    title: 'High School (10th Standard)',
+    school: "St Joseph's Indian High School, Bengaluru",
+    status: 'June 2020 - April 2021',
+  },
+]
+
+const experienceItems = [
+  'Developed web applications using React.js and Node.js.',
+  'Collaborated in an agile team environment and participated in code reviews.',
+  'Built a hotel booking system with frontend and backend integration.',
+  'Worked with APIs, databases, and deployment basics.',
+]
+
 function App() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [activeSection, setActiveSection] = useState('home')
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  
-  const sectionRefs = {
-    home: useRef(null),
-    about: useRef(null),
-    skills: useRef(null),
-    experience: useRef(null),
-    projects: useRef(null),
-    education: useRef(null),
-    certifications: useRef(null),
-    contact: useRef(null),
-  }
+  const [activePage, setActivePage] = useState('dashboard')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const activeDetails = pageDetails[activePage]
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-
-      // Update active section
-      const scrollPos = window.scrollY + 100
-      for (const [section, ref] of Object.entries(sectionRefs)) {
-        if (ref.current && 
-            scrollPos >= ref.current.offsetTop && 
-            scrollPos < ref.current.offsetTop + ref.current.offsetHeight) {
-          setActiveSection(section)
-        }
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    
-    // Intersection Observer for fade-in animations
-    const observerOptions = {
-      threshold: 0.1,
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible')
-        }
-      })
-    }, observerOptions)
-
-    document.querySelectorAll('.section').forEach(section => {
-      observer.observe(section)
-    })
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      observer.disconnect()
-    }
-  }, [])
-
-  const scrollTo = (section) => {
-    sectionRefs[section].current.scrollIntoView({ behavior: 'smooth' })
-    setIsMenuOpen(false)
+  const navigateTo = (page) => {
+    setActivePage(page)
+    setMenuOpen(false)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
-    <div className="portfolio-root">
-      {/* Navbar */}
-      <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
-        <div className="container nav-container">
-          <div className="logo">Yeshwanth.C</div>
-          
-          <button className={`menu-toggle ${isMenuOpen ? 'open' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <span></span>
-            <span></span>
-            <span></span>
+    <div className="app-shell">
+      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`} aria-label="Portfolio navigation">
+        <button className="brand-lockup" onClick={() => navigateTo('dashboard')} aria-label="Go to dashboard">
+          <span className="brand-mark">YC</span>
+          <span className="brand-copy">
+            <strong>Yeshwanth C</strong>
+            <small>DEVELOPER PORTFOLIO</small>
+          </span>
+        </button>
+
+        <div className="sidebar-status"><span className="status-indicator" /> MCA STUDENT <span className="status-divider">/</span> DEVELOPER</div>
+
+        <nav className="side-navigation" aria-label="Main menu">
+          {navigationGroups.map((group) => (
+            <div className="nav-group" key={group.label}>
+              <p className="nav-group-label">{group.label}</p>
+              {group.items.map((item) => (
+                <button
+                  className={`side-link ${activePage === item.id ? 'side-link-active' : ''}`}
+                  key={item.id}
+                  onClick={() => navigateTo(item.id)}
+                  aria-current={activePage === item.id ? 'page' : undefined}
+                >
+                  <span className="side-link-mark">{item.mark}</span>
+                  <span>{item.label}</span>
+                  {activePage === item.id && <span className="side-link-indicator" />}
+                </button>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        <div className="sidebar-bottom">
+          <span className="sidebar-bottom-label">OPEN TO OPPORTUNITIES</span>
+          <a href="mailto:yeshccb45@gmail.com">Let’s talk <span aria-hidden="true">↗</span></a>
+          <span className="sidebar-copyright">© {new Date().getFullYear()} Yeshwanth C</span>
+        </div>
+      </aside>
+
+      {menuOpen && <button className="sidebar-backdrop" onClick={() => setMenuOpen(false)} aria-label="Close navigation" />}
+
+      <main className="app-main">
+        <header className="topbar">
+          <button
+            className="mobile-menu-button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            <span /><span /><span />
           </button>
+          <div className="topbar-location"><span>PORTFOLIO</span><span className="breadcrumb-slash">/</span><strong>{activeDetails.title.toUpperCase()}</strong></div>
+          <div className="topbar-status"><span className="status-indicator" /> AVAILABLE FOR OPPORTUNITIES</div>
+        </header>
 
-          <ul className={`nav-links ${isMenuOpen ? 'mobile-open' : ''}`}>
-            <li><a className={activeSection === 'home' ? 'active' : ''} onClick={() => scrollTo('home')}>Home</a></li>
-            <li><a className={activeSection === 'about' ? 'active' : ''} onClick={() => scrollTo('about')}>About</a></li>
-            <li><a className={activeSection === 'skills' ? 'active' : ''} onClick={() => scrollTo('skills')}>Skills</a></li>
-            <li><a className={activeSection === 'experience' ? 'active' : ''} onClick={() => scrollTo('experience')}>Experience</a></li>
-            <li><a className={activeSection === 'projects' ? 'active' : ''} onClick={() => scrollTo('projects')}>Projects</a></li>
-            <li><a className={activeSection === 'contact' ? 'active' : ''} onClick={() => scrollTo('contact')}>Contact</a></li>
-          </ul>
+        <div className="page-view" key={activePage}>
+          {activePage === 'dashboard' && <Dashboard navigateTo={navigateTo} />}
+          {activePage === 'about' && <AboutPage />}
+          {activePage === 'skills' && <SkillsPage />}
+          {activePage === 'soft-skills' && <SoftSkillsPage />}
+          {activePage === 'experience' && <ExperiencePage />}
+          {activePage === 'projects' && <ProjectsPage />}
+          {activePage === 'education' && <EducationPage />}
+          {activePage === 'certifications' && <CertificationsPage />}
+          {activePage === 'languages' && <LanguagesPage />}
+          {activePage === 'contact' && <ContactPage />}
         </div>
-      </nav>
-
-      {/* Hero Section */}
-      <header id="home" ref={sectionRefs.home} className="hero">
-        <div className="container hero-content">
-          <div className="profile-img-container">
-            <img src={profilePic} alt="Yeshwanth C" className="profile-img" />
-          </div>
-          <h1>Hi, I'm <span className="gradient-text">Yeshwanth C</span></h1>
-          <p className="hero-title">Full Stack Web Developer & Cloud Enthusiast</p>
-          <div className="hero-btns">
-            <button className="btn btn-primary" onClick={() => scrollTo('projects')}>View My Work</button>
-          </div>
-        </div>
-      </header>
-
-      {/* About Section */}
-      <section id="about" ref={sectionRefs.about} className="section">
-        <div className="container">
-          <h2 className="section-title">About Me</h2>
-          <div className="glass summary-card">
-            <p style={{fontSize: '1.1rem', lineHeight: '1.8', textAlign: 'justify'}}>
-              I am Yeshwanth C, a dedicated Bachelor of Computer Applications student specializing in Cloud Computing at CMR University. 
-              Driven by a profound interest in full-stack development and artificial intelligence, I focus on building scalable, 
-              user-centric web applications using modern technologies such as React.js, Node.js, and MongoDB. My technical foundation 
-              is complemented by hands-on experience in cloud fundamentals and a growing expertise in AI-driven solutions. 
-              I am a proactive problem-solver with a strong commitment to continuous learning and technical excellence, 
-              eager to contribute to innovative projects in a collaborative, fast-paced environment where I can leverage 
-              my skills in both frontend and backend development to deliver impactful digital experiences.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section id="skills" ref={sectionRefs.skills} className="section">
-        <div className="container">
-          <h2 className="section-title">Technical Expertise</h2>
-          <div className="skills-grid">
-            <SkillCategory title="Programming" skills={['C', 'C++', 'Java']} />
-            <SkillCategory title="Web Technologies" skills={['HTML', 'CSS', 'JavaScript', 'PHP']} />
-            <SkillCategory title="Frameworks" skills={['React.js', 'Node.js', 'Express.js', 'Next.js']} />
-            <SkillCategory title="Database" skills={['SQL', 'PostgreSQL', 'MongoDB', 'DBMS']} />
-            <SkillCategory title="Cloud & IoT" skills={['AWS (Basic)', 'IoT Architecture', 'Sensors']} />
-            <SkillCategory title="Professional Skills" skills={['Time Management', 'Communication', 'Team Collaboration', 'Problem Solving', 'Adaptability']} />
-          </div>
-        </div>
-      </section>
-
-      {/* Experience Section */}
-      <section id="experience" ref={sectionRefs.experience} className="section">
-        <div className="container">
-          <h2 className="section-title">Professional Experience</h2>
-          <div className="timeline-card glass">
-            <div className="featured-badge">Active Internship</div>
-            <h3>Full Stack Developer Intern</h3>
-            <div className="company">Eduphoenix Solutions Pvt Ltd</div>
-            <div className="date">June 2025 – August 2025</div>
-            <ul>
-              <li>Developed web applications using React.js and Node.js</li>
-              <li>Collaborated in agile team environment with code reviews</li>
-              <li>Built a hotel booking system with frontend-backend integration</li>
-              <li>Worked with APIs, databases, and deployment basics</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section id="projects" ref={sectionRefs.projects} className="section">
-        <div className="container">
-          <h2 className="section-title">Featured Projects</h2>
-          <div className="card-grid">
-            <ProjectCard 
-              title="SkillMorph" 
-              featured={true}
-              description="A professional platform designed to empower users with skill-building pathways. Features a modern UI, roadmap tracking, and production-ready architecture."
-              tags={['React', 'Node.js', 'MongoDB', 'Vite']}
-            />
-            <ProjectCard 
-              title="CMR VibeWaves" 
-              description="A dynamic web-based live broadcasting portal designed for real-time streaming and interaction. Features user registration and content management."
-              tags={['HTML', 'CSS', 'JS', 'PHP', 'MySQL']}
-            />
-            <ProjectCard 
-              title="Bank Management System" 
-              description="Command-line based application for managing core banking operations. Implements account creation, transactions, and record management with MySQL."
-              tags={['JS', 'PHP', 'MySQL CLI', 'CLI']}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Education Section */}
-      <section id="education" ref={sectionRefs.education} className="section">
-        <div className="container">
-          <h2 className="section-title">Education</h2>
-          <div className="education-stack" style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-            <div className="timeline-card glass">
-              <h3>Master of Computer Applications (MCA)</h3>
-              <div className="company">East Point College of Higher Education</div>
-              <div className="date">Currently pursuing</div>
-            </div>
-            <div className="timeline-card glass">
-              <h3>Bachelor of Computer Applications (BCA)</h3>
-              <div className="mono" style={{fontSize: '0.8rem', marginBottom: '5px'}}>Cloud Computing</div>
-              <div className="company">CMR University, Bengaluru</div>
-              <div className="date">Completed</div>
-              <p className="mono">CGPA: 8.48</p>
-            </div>
-            <div className="timeline-card glass">
-              <h3>Pre-University College (PCMC)</h3>
-              <div className="company">Indranagar Composite PU College, Bengaluru</div>
-              <div className="date">June 2021 - April 2023</div>
-            </div>
-            <div className="timeline-card glass">
-              <h3>High School (10th Standard)</h3>
-              <div className="company">St Joseph's Indian High School, Bengaluru</div>
-              <div className="date">June 2020 - April 2021</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Certifications Section */}
-      <section id="certifications" ref={sectionRefs.certifications} className="section">
-        <div className="container">
-          <h2 className="section-title">Certifications</h2>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-            <CertItem image={aiCert} title="AI Workshop Participation" issuer="Organized by Be10x" year="2025" description="Gained hands-on experience in Artificial Intelligence concepts, including machine learning and neural networks. Collaborated with peers on real-world AI projects." />
-            <CertItem image={internshipCert} title="Full Stack Developer Internship" issuer="Eduphoenix Solutions Pvt Ltd" year="2025" description="Completed a professional internship focusing on web application development using React, Node.js, and MongoDB. Contributed to live client projects." />
-            <CertItem image={iotCert} title="NPTEL IoT Certification" issuer="NPTEL (IIT)" year="2024" description="Successfully completed the NPTEL course on Internet of Things, covering IoT architecture, sensors, and cloud integration." />
-          </div>
-        </div>
-      </section>
-
-      {/* Extra-Curricular Section */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Extra-Curricular</h2>
-          <div className="glass timeline-card">
-            <h3 className="gradient-text" style={{marginBottom: '20px'}}>Community Involvement</h3>
-            <ul>
-              <li>Participated in community service programs (90 hours)</li>
-              <li>Completed community internship program (30 hours)</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Languages Section */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Languages</h2>
-          <div className="glass timeline-card">
-            <p className="mono" style={{fontSize: '1.5rem', fontWeight: '700'}}>English • Hindi • Telugu • Tamil • Kannada</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" ref={sectionRefs.contact} className="section">
-        <div className="container">
-          <h2 className="section-title">Get In Touch</h2>
-          <div className="contact-grid">
-            <ContactItem icon="📧" title="Email" value="yeshccb45@gmail.com" link="mailto:yeshccb45@gmail.com" />
-            <ContactItem icon="📱" title="Phone" value="+91 6366704266" link="tel:+916366704266" />
-            <ContactItem icon="💼" title="LinkedIn" value="Connect" link="https://linkedin.com/in/yeshwanth-c1270" />
-            <ContactItem icon="🐙" title="GitHub" value="Follow" link="https://github.com/yeshwanthc-1270" />
-          </div>
-        </div>
-      </section>
-
-      <footer style={{textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)'}}>
-        <p>&copy; {new Date().getFullYear()} Yeshwanth C. All rights reserved.</p>
-      </footer>
+      </main>
     </div>
   )
 }
 
-function SkillCategory({ title, skills }) {
+function Dashboard({ navigateTo }) {
   return (
-    <div className="skill-card glass">
-      <h3>{title}</h3>
-      <div className="skill-tags">
-        {skills.map(skill => (
-          <span key={skill} className="skill-tag">{skill}</span>
+    <div className="dashboard-page">
+      <section className="dashboard-hero">
+        <div className="dashboard-hero-copy">
+          <p className="eyebrow"><span className="eyebrow-mark">01</span> MCA STUDENT <span className="eyebrow-divider">/</span> FULL STACK DEVELOPER</p>
+          <h1>Curiosity, code,<br /><span>and what’s next.</span></h1>
+          <p className="hero-description">I’m Yeshwanth, a developer building thoughtful web experiences. BCA graduate with an 8.48 CGPA, now pursuing my MCA at East Point College of Higher Education.</p>
+          <div className="hero-actions">
+            <button className="button-primary" onClick={() => navigateTo('projects')}>Explore projects <span aria-hidden="true">↗</span></button>
+            <button className="button-quiet" onClick={() => navigateTo('contact')}>Get in touch <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+        <div className="terminal-card" aria-label="Developer profile summary">
+          <div className="terminal-header">
+            <div className="terminal-controls"><i /><i /><i /></div>
+            <span>profile.ts</span>
+            <span className="terminal-menu">•••</span>
+          </div>
+          <div className="terminal-code">
+            <p><span className="code-muted">01</span> <span className="code-keyword">const</span> <span className="code-variable">developer</span> = {'{'}</p>
+            <p><span className="code-muted">02</span> &nbsp; name: <span className="code-string">'Yeshwanth C'</span>,</p>
+            <p><span className="code-muted">03</span> &nbsp; focus: <span className="code-string">'Full stack'</span>,</p>
+            <p><span className="code-muted">04</span> &nbsp; degree: <span className="code-string">'MCA'</span>,</p>
+            <p><span className="code-muted">05</span> &nbsp; learning: <span className="code-string">'Every day'</span></p>
+            <p><span className="code-muted">06</span> {'}'}</p>
+            <div className="terminal-prompt"><span>➜</span> ready_to_build<span className="cursor-block" /></div>
+          </div>
+          <div className="terminal-footer"><span>LOCAL / BENGALURU</span><span>UTF-8</span></div>
+        </div>
+      </section>
+
+      <section className="stat-grid" aria-label="Portfolio highlights">
+        <StatCard label="BCA RESULT" value="8.48" suffix="CGPA" tone="blue" />
+        <StatCard label="CURRENTLY" value="MCA" suffix="IN PROGRESS" tone="lime" />
+        <StatCard label="SELECTED WORK" value="03" suffix="PROJECTS" tone="coral" />
+        <StatCard label="DEVELOPER TOOLKIT" value="07" suffix="SKILL AREAS" tone="teal" />
+      </section>
+
+      <div className="dashboard-lower">
+        <section className="dashboard-section-block">
+          <SectionBar title="Selected projects" action="All projects" onAction={() => navigateTo('projects')} />
+          <div className="dashboard-project-list">
+            {projects.slice(0, 2).map((project, index) => <ProjectCard project={project} index={index} key={project.title} />)}
+          </div>
+        </section>
+
+        <aside className="dashboard-aside">
+          <section className="quick-panel">
+            <SectionBar title="Explore" />
+            <div className="quick-links">
+              {[
+                ['about', 'Profile / About me', 'A little about my background'],
+                ['education', 'Education', 'MCA, BCA, and earlier studies'],
+                ['skills', 'Technical skills', 'Languages, frameworks, and tools'],
+                ['soft-skills', 'Soft skills', 'How I work and collaborate'],
+                ['projects', 'Projects', 'Selected development work'],
+                ['experience', 'Experience / Internship', 'Full stack internship'],
+                ['certifications', 'Certificates', 'Courses and workshops'],
+                ['languages', 'Languages', 'English, Hindi, Telugu, Tamil, Kannada'],
+                ['contact', 'Contact info', 'Email and professional profiles'],
+              ].map(([page, title, detail], index) => (
+                <button className="quick-link" key={page} onClick={() => navigateTo(page)}>
+                  <span className="quick-link-number">0{index + 1}</span>
+                  <span className="quick-link-copy"><strong>{title}</strong><small>{detail}</small></span>
+                  <span className="quick-link-arrow" aria-hidden="true">↗</span>
+                </button>
+              ))}
+            </div>
+          </section>
+          <section className="focus-panel">
+            <span className="focus-label">CURRENT FOCUS</span>
+            <h3>Learning by building.</h3>
+            <p>Exploring full-stack development, cloud fundamentals, and practical ways to make technology useful.</p>
+            <div className="focus-tags"><span>REACT</span><span>NODE.JS</span><span>PYTHON</span></div>
+          </section>
+        </aside>
+      </div>
+      <footer className="page-footer"><span>Designed and built by Yeshwanth C</span><span>Made with curiosity <b>✳</b></span></footer>
+    </div>
+  )
+}
+
+function PageHeading({ eyebrow, title, description }) {
+  return (
+    <div className="page-heading">
+      <p className="eyebrow"><span className="eyebrow-mark">{eyebrow}</span> PORTFOLIO / {title.toUpperCase()}</p>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+  )
+}
+
+function AboutPage() {
+  return (
+    <div className="content-page">
+      <PageHeading eyebrow="01" title="Profile / About me" description="A little context about the person behind the projects." />
+      <div className="about-layout">
+        <article className="content-panel about-copy">
+          <span className="panel-index">01 / INTRODUCTION</span>
+          <h2>Making ideas useful through technology.</h2>
+          <p>I’m Yeshwanth C, a BCA graduate specializing in Cloud Computing and currently pursuing my Master of Computer Applications at East Point College of Higher Education.</p>
+          <p>I’m interested in full-stack development and artificial intelligence, and enjoy building clear, user-focused applications with technologies such as React.js, Node.js, and MongoDB. I bring hands-on experience from an internship and a steady curiosity about how software can solve practical problems.</p>
+          <p>My goal is to keep growing as a developer, contribute to thoughtful products, and learn by working with people who care about craft and impact.</p>
+        </article>
+        <aside className="about-side-stack">
+          <div className="content-panel identity-card">
+            <span className="panel-index">02 / RIGHT NOW</span>
+            <div className="identity-monogram">YC<span>.</span></div>
+            <h3>Student by day.<br />Builder every day.</h3>
+            <p>Currently pursuing MCA in Bengaluru, India.</p>
+          </div>
+          <div className="content-panel about-focus-card">
+            <span className="panel-index">03 / AREAS OF INTEREST</span>
+            <div className="about-focus-list"><span>Full-stack development</span><span>Cloud computing</span><span>Artificial intelligence</span></div>
+          </div>
+        </aside>
+      </div>
+      <section className="content-panel community-panel">
+        <span className="panel-index">04 / BEYOND THE SCREEN</span>
+        <h2>Community involvement</h2>
+        <div className="community-stats"><strong>90 <small>hours of community service</small></strong><strong>30 <small>hours in a community internship</small></strong></div>
+      </section>
+    </div>
+  )
+}
+
+function SkillsPage() {
+  return (
+    <div className="content-page">
+      <PageHeading eyebrow="03" title="Technical skills" description="The tools and technologies I use to bring ideas to life." />
+      <div className="skill-page-grid">
+        {skillGroups.map((group) => <SkillCategory group={group} key={group.title} />)}
+      </div>
+      <div className="skills-note"><span className="status-indicator" /><p>Skills grow with every project. This toolkit is always evolving.</p></div>
+    </div>
+  )
+}
+
+function SoftSkillsPage() {
+  return (
+    <div className="content-page">
+      <PageHeading eyebrow="04" title="Soft skills" description="How I collaborate, solve problems, and keep learning." />
+      <div className="soft-skill-list">
+        {softSkills.map((skill, index) => (
+          <article className={`soft-skill-item soft-skill-${(index % 3) + 1}`} key={skill}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h2>{skill}</h2>
+            <span className="soft-skill-mark" aria-hidden="true">↗</span>
+          </article>
         ))}
       </div>
     </div>
   )
 }
 
-function ProjectCard({ title, description, tags, featured }) {
+function ExperiencePage() {
   return (
-    <div className={`project-card glass ${featured ? 'featured' : ''}`}>
-      <div className="project-info">
-        {featured && <span className="featured-badge">Featured Project</span>}
-        <h3>{title}</h3>
-        <p style={{margin: '16px 0', fontSize: '0.95rem'}}>{description}</p>
-        <div className="skill-tags">
-          {tags.map(tag => (
-            <span key={tag} className="skill-tag" style={{fontSize: '0.75rem', padding: '4px 10px'}}>{tag}</span>
-          ))}
+    <div className="content-page">
+      <PageHeading eyebrow="06" title="Experience / Internship" description="Where I have put my skills to work." />
+      <article className="content-panel experience-entry">
+        <div className="experience-date"><span>JUN 2025</span><i /><span>AUG 2025</span></div>
+        <div className="experience-details">
+          <span className="featured-label">INTERNSHIP</span>
+          <h2>Full Stack Developer Intern</h2>
+          <p className="company-line">Eduphoenix Solutions Pvt Ltd <span>· Bengaluru</span></p>
+          <ul>{experienceItems.map((item) => <li key={item}>{item}</li>)}</ul>
+          <div className="tag-row"><Tag>React.js</Tag><Tag>Node.js</Tag><Tag>APIs</Tag><Tag>Databases</Tag></div>
         </div>
+      </article>
+      <section className="experience-note"><span className="panel-index">WHAT I VALUE</span><p>Curiosity, collaboration, clean communication, and learning from real projects.</p></section>
+    </div>
+  )
+}
+
+function ProjectsPage() {
+  return (
+    <div className="content-page">
+      <PageHeading eyebrow="05" title="Projects" description="Things I have designed, built, and learned from." />
+      <div className="project-page-grid">
+        {projects.map((project, index) => <ProjectCard project={project} index={index} key={project.title} />)}
+      </div>
+      <div className="project-note"><span>MORE IDEAS IN PROGRESS</span><p>Every project is another chance to explore, improve, and build with intention.</p></div>
+    </div>
+  )
+}
+
+function EducationPage() {
+  return (
+    <div className="content-page">
+      <PageHeading eyebrow="02" title="Education" description="My academic path so far." />
+      <div className="education-list">
+        {education.map((item, index) => (
+          <article className={`education-entry ${item.current ? 'education-current' : ''}`} key={item.title}>
+            <div className="education-marker"><span>{String(index + 1).padStart(2, '0')}</span><i /></div>
+            <div className="education-copy">
+              <div className="education-entry-top"><span className="education-status">{item.status}</span>{item.result && <strong className="education-result">{item.result}</strong>}</div>
+              <h2>{item.title}</h2>
+              <p>{item.school}</p>
+              {item.detail && <span className="education-detail">{item.detail}</span>}
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   )
 }
 
-function CertItem({ image, title, issuer, year, description }) {
+function CertificationsPage() {
   return (
-    <div className="glass cert-full-card">
-      <div className="cert-image-container">
-        <img src={image} alt={title} className="cert-img-full" />
-      </div>
-      <div className="cert-content">
-        <h4 className="mono" style={{color: 'var(--primary)', fontSize: '1.2rem', marginBottom: '10px'}}>{title}</h4>
-        <div className="mono" style={{fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px'}}>{issuer} | {year}</div>
-        <p style={{fontSize: '0.95rem', opacity: 0.9}}>{description}</p>
+    <div className="content-page">
+      <PageHeading eyebrow="07" title="Certificates" description="Courses, workshops, and milestones beyond the classroom." />
+      <div className="certification-grid">
+        {certifications.map((item, index) => <CertItem item={item} index={index} key={item.title} />)}
       </div>
     </div>
   )
 }
 
-function ContactItem({ icon, title, value, link }) {
+function LanguagesPage() {
   return (
-    <div className="contact-item glass">
-      <span className="icon">{icon}</span>
-      <h3>{title}</h3>
-      <a href={link} target={link.startsWith('http') ? '_blank' : '_self'} rel="noreferrer">{value}</a>
+    <div className="content-page">
+      <PageHeading eyebrow="08" title="Languages" description="Languages I speak." />
+      <div className="language-page-grid">
+        {languages.map((language, index) => (
+          <article className={`language-page-card language-tone-${(index % 3) + 1}`} key={language}>
+            <span>0{index + 1} / LANGUAGE</span>
+            <h2>{language}</h2>
+          </article>
+        ))}
+      </div>
     </div>
+  )
+}
+
+function ContactPage() {
+  return (
+    <div className="content-page">
+      <PageHeading eyebrow="09" title="Contact info" description="Have a project or opportunity in mind? Let’s connect." />
+      <section className="contact-callout">
+        <span className="panel-index">OPEN TO OPPORTUNITIES</span>
+        <h2>Good things start<br />with a conversation.</h2>
+        <p>I’m always glad to connect about projects, internships, and ideas in technology.</p>
+        <a className="button-primary" href="mailto:yeshccb45@gmail.com">Email me <span aria-hidden="true">↗</span></a>
+      </section>
+      <div className="contact-page-grid">
+        <ContactItem mark="@" title="Email" value="yeshccb45@gmail.com" link="mailto:yeshccb45@gmail.com" />
+        <ContactItem mark="in" title="LinkedIn" value="Connect" link="https://linkedin.com/in/yeshwanth-c1270" />
+        <ContactItem mark="GH" title="GitHub" value="yeshccb45-bit" link="https://github.com/yeshccb45-bit" />
+      </div>
+    </div>
+  )
+}
+
+function SectionBar({ title, action, onAction }) {
+  return (
+    <div className="section-bar">
+      <h2>{title}</h2>
+      {action && <button className="text-action" onClick={onAction}>{action}<span aria-hidden="true">↗</span></button>}
+    </div>
+  )
+}
+
+function StatCard({ label, value, suffix, tone }) {
+  return (
+    <article className={`stat-card stat-${tone}`}>
+      <span>{label}</span>
+      <div><strong>{value}</strong><small>{suffix}</small></div>
+      <i aria-hidden="true" />
+    </article>
+  )
+}
+
+function SkillCategory({ group }) {
+  return (
+    <article className="skill-category-card">
+      <div className="skill-card-top"><span>{group.mark} / TOOLKIT</span><span className="skill-card-arrow" aria-hidden="true">↗</span></div>
+      <h2>{group.title}</h2>
+      <div className="tag-row">{group.skills.map((skill) => <Tag key={skill}>{skill}</Tag>)}</div>
+    </article>
+  )
+}
+
+function Tag({ children }) {
+  return <span className="skill-pill">{children}</span>
+}
+
+function ProjectCard({ project, index }) {
+  return (
+    <article className={`project-tile project-tone-${(index % 3) + 1}`}>
+      <div className="project-tile-top"><span>{project.category}</span><span>{String(index + 1).padStart(2, '0')}</span></div>
+      {project.featured && <span className="featured-label">FEATURED</span>}
+      <h3>{project.title}</h3>
+      <p>{project.description}</p>
+      <div className="tag-row">{project.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}</div>
+      <div className="project-tile-bottom"><span>PERSONAL PROJECT</span><span aria-hidden="true">↗</span></div>
+    </article>
+  )
+}
+
+function CertItem({ item, index }) {
+  return (
+    <article className="certification-card">
+      <div className="certification-image"><img src={item.image} alt={item.title} /></div>
+      <div className="certification-copy">
+        <div className="certification-meta"><span>0{index + 1} / CERTIFICATE</span><span>{item.year}</span></div>
+        <h2>{item.title}</h2>
+        <p className="certification-issuer">{item.issuer}</p>
+        <p>{item.description}</p>
+      </div>
+    </article>
+  )
+}
+
+function ContactItem({ mark, title, value, link }) {
+  return (
+    <a className="contact-card" href={link} target={link.startsWith('http') ? '_blank' : undefined} rel={link.startsWith('http') ? 'noreferrer' : undefined}>
+      <span className="contact-mark">{mark}</span>
+      <span className="contact-card-copy"><strong>{title}</strong><small>{value}</small></span>
+      <span className="contact-arrow" aria-hidden="true">↗</span>
+    </a>
   )
 }
 
